@@ -121,14 +121,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // EmailJS Configuration
 // IMPORTANT: Replace these with your actual EmailJS credentials
 // Get them from: https://www.emailjs.com/
-const EMAILJS_SERVICE_ID = 'service_c39f8rp'; // Replace with your EmailJS service ID
-const EMAILJS_TEMPLATE_ID = 'template_omzx2xm'; // Replace with your EmailJS template ID
-const EMAILJS_PUBLIC_KEY = 'wd3_TGgmFTX0hVGh3'; // Replace with your EmailJS public key
+const EMAILJS_SERVICE_ID = 'service_c39f8rp';
+const EMAILJS_TEMPLATE_ID = 'template_0au1q9p'; // Replace with your actual template ID from EmailJS dashboard
+const EMAILJS_PUBLIC_KEY = 'wd3_TGgmFTX0hVGh3';
 
-// Initialize EmailJS
-(function() {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-})();
+// Wait for EmailJS to load and initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize EmailJS when the page loads
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        console.log('EmailJS initialized successfully');
+    } else {
+        console.error('EmailJS library not loaded');
+    }
+});
 
 // Form submission with EmailJS
 const contactForm = document.getElementById('contactForm');
@@ -141,6 +147,14 @@ if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        // Check if EmailJS is loaded
+        if (typeof emailjs === 'undefined') {
+            formMessage.textContent = 'Email service is not loaded. Please refresh the page and try again.';
+            formMessage.className = 'form-message error';
+            formMessage.style.display = 'block';
+            return;
+        }
+        
         // Show loading state
         submitBtn.disabled = true;
         submitBtnText.style.display = 'none';
@@ -148,20 +162,31 @@ if (contactForm) {
         formMessage.style.display = 'none';
         
         try {
-            // Get form data
-            const formData = {
-                from_name: document.getElementById('user_name').value,
-                from_email: document.getElementById('user_email').value,
-                message: document.getElementById('message').value,
-                to_email: 'qadeeranjum568@example.com' // Replace with your actual email address
+            // Get form data - EmailJS template variables
+            // These must match your EmailJS template variable names exactly
+            const templateParams = {
+                name: document.getElementById('user_name').value.trim(),        // {{name}} in template
+                from_name: document.getElementById('user_name').value.trim(),   // {{from_name}} for From Name field
+                from_email: document.getElementById('user_email').value.trim(), // {{from_email}} for From Email field
+                email: document.getElementById('user_email').value.trim(),      // {{email}} for Reply To field
+                message: document.getElementById('message').value.trim(),       // {{message}} in template
+                title: 'New Contact Form Message',                             // {{title}} in subject
+                time: new Date().toLocaleString()                               // {{time}} in template
             };
+            
+            // Log for debugging (remove in production)
+            console.log('Sending email with params:', templateParams);
+            console.log('Service ID:', EMAILJS_SERVICE_ID);
+            console.log('Template ID:', EMAILJS_TEMPLATE_ID);
             
             // Send email using EmailJS
             const response = await emailjs.send(
                 EMAILJS_SERVICE_ID,
                 EMAILJS_TEMPLATE_ID,
-                formData
+                templateParams
             );
+            
+            console.log('Email sent successfully:', response);
             
             // Success
             formMessage.textContent = 'Thank you for your message! I\'ll get back to you soon.';
@@ -175,9 +200,21 @@ if (contactForm) {
             }, 5000);
             
         } catch (error) {
-            // Error handling
-            console.error('EmailJS Error:', error);
-            formMessage.textContent = 'Sorry, there was an error sending your message. Please try again later or contact me directly at qadeeranjum568@example.com';
+            // Enhanced error handling
+            console.error('EmailJS Error Details:', error);
+            let errorMessage = 'Sorry, there was an error sending your message. ';
+            
+            if (error.text) {
+                console.error('EmailJS Error Text:', error.text);
+                errorMessage += `Error: ${error.text}`;
+            } else if (error.message) {
+                console.error('Error Message:', error.message);
+                errorMessage += `Error: ${error.message}`;
+            } else {
+                errorMessage += 'Please check the console for details and try again later.';
+            }
+            
+            formMessage.textContent = errorMessage;
             formMessage.className = 'form-message error';
             formMessage.style.display = 'block';
         } finally {
