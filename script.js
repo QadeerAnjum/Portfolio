@@ -118,16 +118,74 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Form submission
+// EmailJS Configuration
+// IMPORTANT: Replace these with your actual EmailJS credentials
+// Get them from: https://www.emailjs.com/
+const EMAILJS_SERVICE_ID = 'service_c39f8rp'; // Replace with your EmailJS service ID
+const EMAILJS_TEMPLATE_ID = 'template_omzx2xm'; // Replace with your EmailJS template ID
+const EMAILJS_PUBLIC_KEY = 'wd3_TGgmFTX0hVGh3'; // Replace with your EmailJS public key
+
+// Initialize EmailJS
+(function() {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+})();
+
+// Form submission with EmailJS
 const contactForm = document.getElementById('contactForm');
+const formMessage = document.getElementById('formMessage');
+const submitBtn = document.getElementById('submitBtn');
+const submitBtnText = document.getElementById('submitBtnText');
+const submitBtnLoader = document.getElementById('submitBtnLoader');
+
 if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Show success message (you can implement actual form submission here)
-        const formData = new FormData(contactForm);
-        alert('Thank you for your message! I\'ll get back to you soon.');
-        contactForm.reset();
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtnText.style.display = 'none';
+        submitBtnLoader.style.display = 'inline-block';
+        formMessage.style.display = 'none';
+        
+        try {
+            // Get form data
+            const formData = {
+                from_name: document.getElementById('user_name').value,
+                from_email: document.getElementById('user_email').value,
+                message: document.getElementById('message').value,
+                to_email: 'qadeeranjum568@example.com' // Replace with your actual email address
+            };
+            
+            // Send email using EmailJS
+            const response = await emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_ID,
+                formData
+            );
+            
+            // Success
+            formMessage.textContent = 'Thank you for your message! I\'ll get back to you soon.';
+            formMessage.className = 'form-message success';
+            formMessage.style.display = 'block';
+            contactForm.reset();
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 5000);
+            
+        } catch (error) {
+            // Error handling
+            console.error('EmailJS Error:', error);
+            formMessage.textContent = 'Sorry, there was an error sending your message. Please try again later or contact me directly at qadeeranjum568@example.com';
+            formMessage.className = 'form-message error';
+            formMessage.style.display = 'block';
+        } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtnText.style.display = 'inline-block';
+            submitBtnLoader.style.display = 'none';
+        }
     });
 }
 

@@ -865,6 +865,52 @@ section {
     resize: vertical;
 }
 
+/* Form Message Styles */
+.form-message {
+    padding: 15px 20px;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+    display: block;
+}
+
+.form-message.success {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    color: #81c784;
+}
+
+.form-message.error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    color: #e57373;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Submit Button Loading State */
+#submitBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#submitBtnLoader {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* Footer */
 .footer {
     background: var(--dark-card);
