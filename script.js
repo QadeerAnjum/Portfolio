@@ -69,7 +69,7 @@ revealElements.forEach(element => {
 
 // Typing Effect
 const typingText = document.querySelector('.typing-text');
-const phrases = ['Full Stack Developer', 'AI Integration Specialist', 'Professional Developer'];
+const phrases = ['Full Stack Developer', 'Mobile & Web Apps', 'AI Integration Specialist'];
 let phraseIndex = 0;
 let charIndex = 0;
 let isDeleting = false;
